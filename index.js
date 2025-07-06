@@ -1,28 +1,32 @@
-// import json server
-const jsonServer = require('json-server')
+const jsonServer = require('json-server');
+const cors = require('cors');
 
-// import cors
-const cors = require('cors')
+// Create server
+const server = jsonServer.create();
 
-// craete a server using json server
-const server = jsonServer.create()
+// Set up middlewares
+const middlewares = jsonServer.defaults();
 
-// setup a middleware
-const middleware = jsonServer.defaults()
+// Set up router
+const router = jsonServer.router('db.json');
 
-// setup routers 
-const route = jsonServer.router('db.json')
+// Enable CORS and other middlewares
+server.use(cors());
+server.use(middlewares);
+server.use(router);
 
-// impimenting use
-server.use(cors())
-server.use(middleware)
-server.use(route)
+// Use port 3001 to avoid conflicts with React (3000)
+const PORT = process.env.PORT || 3001;
 
-// create a port
-const PORT =process.env.PORT || 3000
-
-// start server
-server.listen(PORT,()=>{
-console.log("server runing on the port",PORT);
-})
-
+// Start server with better error handling
+server.listen(PORT, () => {
+  console.log(`JSON Server is running on port ${PORT}`);
+}).on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Error: Port ${PORT} is already in use.`);
+    console.log('Try running on a different port:');
+    console.log('PORT=3002 npm start');
+  } else {
+    console.error('Server error:', err);
+  }
+});
